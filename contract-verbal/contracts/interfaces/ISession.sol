@@ -2,6 +2,15 @@
 pragma solidity ^0.8.17;
 
 interface ISessions {
+    struct Session {
+        address mentor;
+        address student;
+        bool isAccepted;
+        uint256 timeStamp;
+        string meetingLink;
+        uint256 paymentFee;
+    }
+
     event SessionScheduled(
         address indexed mentor,
         address indexed student,
@@ -40,19 +49,8 @@ interface ISessions {
         );
 
     function addressToSessions(
-        address _address,
-        uint256 _index
-    )
-        external
-        view
-        returns (
-            address mentor,
-            address student,
-            bool isAccepted,
-            uint256 timeStamp,
-            string memory meetingLink,
-            uint256 paymentFee
-        );
+        address _address
+    ) external view returns (Session[] memory);
 
     function uintToSession(
         uint256 _sessionId
