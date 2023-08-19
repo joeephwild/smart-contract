@@ -12,6 +12,11 @@ module.exports = {
     },
     linea: {
       provider: () => new HDWalletProvider(privateKeys, INFURA_RPC),
+      verify: {
+        apiUrl: "https://api-testnet.lineascan.build/api",
+        apiKey: ETHERSCAN_API_KEY,
+        explorerUrl: "https://goerli.lineascan.build/address",
+      },
       network_id: "59140",
     },
   },
@@ -20,4 +25,5 @@ module.exports = {
       version: "0.8.19",
     },
   },
+  plugins: ["truffle-plugin-verify"],
 };
