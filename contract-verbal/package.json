@@ -1,6 +1,9 @@
 {
   "dependencies": {
     "@axelar-network/axelar-gmp-sdk-solidity": "^4.0.3",
-    "@openzeppelin/contracts": "^4.9.3"
+    "@openzeppelin/contracts": "^4.9.3",
+    "@truffle/hdwallet-provider": "^2.1.13",
+    "dotenv": "^16.3.1",
+    "ethers": "^6.7.1"
   }
 }
