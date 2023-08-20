@@ -16,6 +16,7 @@ contract Sessions {
         uint256 timeStamp;
         string meetingLink;
         uint256 paymentFee;
+        uint256 sessionId;
     }
 
     event SessionScheduled(
@@ -57,24 +58,58 @@ contract Sessions {
         newSession.student = msg.sender;
         newSession.meetingLink = _meetingLink;
         newSession.timeStamp = _timestamp;
+        newSession.sessionId = id;
         allSessions.push(newSession);
         addressToSessions[msg.sender].push(newSession);
+        uintToSession[id] = newSession;
         _sessionID.increment();
 
-        emit SessionScheduled(_mentor, msg.sender, newSession.paymentFee, _meetingLink, id);
+        emit SessionScheduled(
+            _mentor,
+            msg.sender,
+            newSession.paymentFee,
+            _meetingLink,
+            id
+        );
     }
 
     function cancelSession(uint256 _sessionId) external {
         Session storage session = uintToSession[_sessionId];
-        require(session.student == msg.sender, "You are not the student of this session");
-        session.isAccepted = false;
+        require(
+            session.student == msg.sender || session.mentor == msg.sender,
+            "You are not authorized to make changes to this session"
+        );
+        if (msg.sender == session.mentor) {
+            session.isAccepted = false;
+            addressToSessions[session.student].isAccepted = true;
+        } else {
+            delete addressToSessions[msg.sender];
+            delete uintToSession[_sessionId];
+        }
+
         emit SessionCancelled(_sessionId);
     }
 
     function acceptSession(uint256 _sessionId) external {
         Session storage session = uintToSession[_sessionId];
-        require(session.mentor == msg.sender, "You are not the mentor of this session");
+        require(
+            session.mentor == msg.sender,
+            "You are not the mentor of this session"
+        );
         session.isAccepted = true;
+        addressToSessions[session.student].isAccepted = true;
         emit SessionAccepted(_sessionId);
+    }
+
+    function getUserSessions(
+        address _userAddress
+    ) external returns (address[] memory) {
+        return addressToSessions[_userAddress];
+    }
+
+    function getSessionDetails(
+        uint _sessionId
+    ) external returns (Session memory) {
+        return uintToSession[_sessionId];
     }
 }
