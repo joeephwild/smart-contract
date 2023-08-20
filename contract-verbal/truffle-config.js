@@ -1,6 +1,6 @@
 require("dotenv").config();
 const HDWalletProvider = require("@truffle/hdwallet-provider");
-const { MNEMONIC, INFURA_RPC } = process.env;
+const { MNEMONIC, INFURA_RPC, ETHERSCAN_API_KEY } = process.env;
 const privateKeys = [MNEMONIC];
 
 module.exports = {

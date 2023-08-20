@@ -14,7 +14,7 @@ const RewardsContract = artifacts.require("RewardsContract");
 module.exports = async function (deployer, network) {
   if (network == "development") {
     const accounts = await fetchAccountAddresses();
-    console.log(accounts);
+    // console.log(accounts);
     await deployer.deploy(VerbalToken, accounts[0].address); // holder address
     await deployer.deploy(PodcastContract);
     await deployer.deploy(Sessions);
