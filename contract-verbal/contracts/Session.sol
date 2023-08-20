@@ -30,7 +30,8 @@ contract Sessions {
     event SessionAccepted(uint256 indexed sessionId);
 
     Session[] public allSessions;
-    mapping(address => Session[]) public addressToSessions;
+    //mapping an address to all Id of it sessions
+    mapping(address => uint[]) public addressToSessions;
     mapping(uint256 => Session) public uintToSession;
 
     modifier isTimeFrameAlreadyTaken(uint256 _timeStamp) {
@@ -60,7 +61,7 @@ contract Sessions {
         newSession.timeStamp = _timestamp;
         newSession.sessionId = id;
         allSessions.push(newSession);
-        addressToSessions[msg.sender].push(newSession);
+        addressToSessions[msg.sender].push(id);
         uintToSession[id] = newSession;
         _sessionID.increment();
 
@@ -81,9 +82,9 @@ contract Sessions {
         );
         if (msg.sender == session.mentor) {
             session.isAccepted = false;
-            addressToSessions[session.student].isAccepted = true;
+            // addressToSessions[session.student].isAccepted = true;
         } else {
-            delete addressToSessions[msg.sender];
+            delete addressToSessions[msg.sender][_sessionId];
             delete uintToSession[_sessionId];
         }
 
@@ -97,19 +98,19 @@ contract Sessions {
             "You are not the mentor of this session"
         );
         session.isAccepted = true;
-        addressToSessions[session.student].isAccepted = true;
+        // addressToSessions[session.student].isAccepted = true;
         emit SessionAccepted(_sessionId);
     }
 
     function getUserSessions(
         address _userAddress
-    ) external returns (address[] memory) {
+    ) external view returns (uint[] memory) {
         return addressToSessions[_userAddress];
     }
 
     function getSessionDetails(
         uint _sessionId
-    ) external returns (Session memory) {
+    ) external view returns (Session memory) {
         return uintToSession[_sessionId];
     }
 }

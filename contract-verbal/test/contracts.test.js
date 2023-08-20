@@ -49,10 +49,12 @@ contract("Session Contract", ([deployer, ...accounts]) => {
     );
     //now we check to ensure all state variables were updated correctly
     //first fetch the session details
-    const sessionDetails = await this.contractInstance.addressToSessions(
-      deployer,
-      0
+    const userSessions = await this.contractInstance.getUserSessions(deployer);
+
+    const sessionDetails = await this.contractInstance.getSessionDetails(
+      userSessions[0]
     );
+
     expect(sessionDetails.mentor).to.equal(accounts[2]);
     expect(sessionDetails.student).to.equal(deployer);
     expect(sessionDetails.isAccepted).to.equal(false);
