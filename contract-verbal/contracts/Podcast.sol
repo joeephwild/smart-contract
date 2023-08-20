@@ -13,16 +13,26 @@ contract PodcastContract {
         string ipfsHash;
         address owner;
         uint256 amount;
-        string image;
-        string title;
         address[] supporters;
+        uint totalSupport;
     }
 
     Podcast[] allPodcasts;
+    mapping(address => uint[]) userToPodcasts;
 
     mapping(uint256 => Podcast) uintToPodcast;
 
-    event PodcastUploaded(uint256 indexed id, address indexed owner, string title);
+    event PodcastUploaded(
+        uint256 indexed id,
+        address indexed owner,
+        string ipfsHash
+    );
+
+    event PodcastSupported(
+        uint256 indexed id,
+        address indexed supporter,
+        uint256 indexed amount
+    );
 
     modifier podcastExists(uint256 _id) {
         require(_id < _podcastID.current(), "Podcast ID does not exist");
@@ -30,16 +40,15 @@ contract PodcastContract {
     }
 
     modifier onlyPodcastOwner(uint256 _id) {
-        require(uintToPodcast[_id].owner == msg.sender, "Only podcast owner can perform this action");
+        require(
+            uintToPodcast[_id].owner == msg.sender,
+            "Only podcast owner can perform this action"
+        );
         _;
     }
 
-    function uploadPodcast(
-        string memory _ipfsHash,
-        uint256 _amount,
-        string memory _image,
-        string memory _title
-    ) external {
+    //IPFS HASH SHOULD ALSO CONTAIN THE iMAGE LINK AND TITLE
+    function uploadPodcast(string memory _ipfsHash, uint256 _amount) external {
         require(bytes(_ipfsHash).length > 0, "IPFS hash cannot be empty");
         require(_amount > 0, "Amount must be greater than zero");
 
@@ -47,21 +56,28 @@ contract PodcastContract {
         Podcast storage newPodcast = uintToPodcast[id];
         newPodcast.ipfsHash = _ipfsHash;
         newPodcast.amount = _amount;
-        newPodcast.image = _image;
-        newPodcast.title = _title;
         newPodcast.owner = msg.sender;
+
         allPodcasts.push(newPodcast);
+        // uintToPodcast[id] = newPodcast;
+        userToPodcasts[msg.sender].push(id);
+
         _podcastID.increment();
 
-        emit PodcastUploaded(id, msg.sender, _title);
+        emit PodcastUploaded(id, msg.sender, _ipfsHash);
     }
 
     function supportPodcast(uint256 _id) external payable podcastExists(_id) {
         Podcast storage podcast = uintToPodcast[_id];
-        require(podcast.owner != msg.sender, "You cannot support your own podcast");
+        require(
+            podcast.owner != msg.sender,
+            "You cannot support your own podcast"
+        );
         require(msg.value == podcast.amount, "You must send the exact amount");
 
+        podcast.totalSupport += msg.value;
         payable(podcast.owner).transfer(msg.value);
+
         podcast.supporters.push(msg.sender);
     }
 
@@ -69,8 +85,13 @@ contract PodcastContract {
         return allPodcasts;
     }
 
-    function withdrawFunds(uint256 _id) external podcastExists(_id) onlyPodcastOwner(_id) {
-        Podcast storage podcast = uintToPodcast[_id];
-        payable(podcast.owner).transfer(address(this).balance);
+    function getUserPodcasts(
+        address _addr
+    ) external view returns (uint[] memory) {
+        return userToPodcasts[_addr];
+    }
+
+    function getPodcastInfo(uint _id) external view returns (Podcast memory) {
+        return uintToPodcast[_id];
     }
 }
