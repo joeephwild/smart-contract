@@ -37,6 +37,8 @@ contract Sessions {
     mapping(address => uint) public sessionsAttendedCount;
     mapping(address => uint) public sessionsMentoredCount;
 
+    mapping(address => uint) mentorsPrice;
+
     modifier isTimeFrameAlreadyTaken(uint256 _timeStamp) {
         require(!isTimeFrameTaken(_timeStamp), "Timeframe is already taken");
         _;
@@ -55,7 +57,10 @@ contract Sessions {
         address _mentor,
         uint256 _timestamp,
         string memory _meetingLink
-    ) external isTimeFrameAlreadyTaken(_timestamp) {
+    ) external payable isTimeFrameAlreadyTaken(_timestamp) {
+        require(fetchMentorsPrice(_mentor) != 0, "Invalid Mentor");
+        require(msg.value >= fetchMentorsPrice(_mentor), "Cant pay mentor");
+
         uint256 id = _sessionID.current();
         Session storage newSession = uintToSession[id];
         newSession.mentor = _mentor;
@@ -87,6 +92,9 @@ contract Sessions {
             session.isAccepted = false;
             // addressToSessions[session.student].isAccepted = true;
         } else {
+            payable(session.student).transfer(
+                fetchMentorsPrice(session.mentor)
+            );
             delete addressToSessions[msg.sender][_sessionId];
             delete uintToSession[_sessionId];
         }
@@ -100,12 +108,23 @@ contract Sessions {
             session.mentor == msg.sender,
             "You are not the mentor of this session"
         );
+        require(session.isAccepted == false, "Already accepted");
         session.isAccepted = true;
+        payable(session.mentor).transfer(fetchMentorsPrice(session.mentor));
         sessionsMentoredCount[session.mentor] += 1;
         sessionsAttendedCount[session.student] += 1;
 
         // addressToSessions[session.student].isAccepted = true;
         emit SessionAccepted(_sessionId);
+    }
+
+    function registerMentorPrice(uint _amount) external {
+        require(_amount != 0, "CAnt set zero amount");
+        mentorsPrice[msg.sender] = _amount;
+    }
+
+    function fetchMentorsPrice(address _addr) public view returns (uint) {
+        return mentorsPrice[_addr];
     }
 
     function getUserSessions(

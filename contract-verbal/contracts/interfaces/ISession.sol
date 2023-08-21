@@ -51,4 +51,8 @@ interface ISessions {
     function sessionsMentoredCount(
         address _userAddress
     ) external view returns (uint);
+
+    function registerMentorPrice(uint256 _amount) external;
+
+    function fetchMentorsPrice(address _addr) external view returns (uint256);
 }
