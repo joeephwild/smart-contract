@@ -10,7 +10,7 @@ module.exports = {
       port: 9545,
       network_id: "*",
     },
-    linea: {
+    linea_testnet: {
       provider: () => new HDWalletProvider(privateKeys, INFURA_RPC),
       verify: {
         apiUrl: "https://api-testnet.lineascan.build/api",
@@ -18,6 +18,8 @@ module.exports = {
         explorerUrl: "https://goerli.lineascan.build/address",
       },
       network_id: "59140",
+      networkCheckTimeout: 10000,
+      timeoutBlocks: 200,
     },
   },
   compilers: {

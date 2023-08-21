@@ -5,13 +5,15 @@ const PodcastContract = artifacts.require("PodcastContract");
 const Sessions = artifacts.require("Sessions");
 const RewardsContract = artifacts.require("RewardsContract");
 
-module.exports = async function (deployer, network) {
-  if (network == "development") {
-    // console.log(accounts);
-    await deployer.deploy(VerbalToken); // holder address
-    await deployer.deploy(PodcastContract);
-    await deployer.deploy(Sessions);
-  }
+module.exports = async function (deployer) {
+  // console.log(accounts);
+  await deployer.deploy(VerbalToken); // holder address
+  // await setInterval(() => console.log("Waiting ...."), 10000);
+  await deployer.deploy(PodcastContract);
+  // await setInterval(() => console.log("Waiting ...."), 10000);
+
+  await deployer.deploy(Sessions);
+  // await setInterval(() => console.log("Waiting ...."), 10000);
 
   // Get the deployed contract instance
   const verbalTokenInstance = await VerbalToken.deployed();
