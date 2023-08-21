@@ -34,7 +34,10 @@ contract RewardsContract is ERC721 {
     function checkAndReward(address _user) external {
         // Check if the user uploaded a podcast
         uint[] memory usersPodcasts = podcastContract.getUserPodcasts(_user);
-        if (countOfUploadPodcastRewards[_user] % 30 == 0) {
+        if (
+            countOfUploadPodcastRewards[_user] != 0 &&
+            countOfUploadPodcastRewards[_user] % 30 == 0
+        ) {
             //mint NFT for every 30 uploads
             _mintNFT(_user);
         }
@@ -44,24 +47,32 @@ contract RewardsContract is ERC721 {
                 countOfUploadPodcastRewards[_user];
             countOfUploadPodcastRewards[_user] += tokensEarned;
             tokenContract.transfer(_user, tokensEarned);
+            return;
         }
 
         // Check if the user supported a podcast
         uint userSupportCount = podcastContract.supportCount(_user);
-        if (countOfSupportRewards[_user] % 20 == 0) {
+        if (
+            countOfSupportRewards[_user] != 0 &&
+            countOfSupportRewards[_user] % 20 == 0
+        ) {
             //mint NFT for every 20 supports
             _mintNFT(_user);
         }
         if (userSupportCount > countOfSupportRewards[_user]) {
-            //award 1 token for every support
+            //award 2 token for every support
             uint tokensEarned = userSupportCount - countOfSupportRewards[_user];
-            countOfSupportRewards[_user] += tokensEarned;
-            tokenContract.transfer(_user, tokensEarned);
+            countOfSupportRewards[_user] += ((tokensEarned) * 2);
+            tokenContract.transfer(_user, tokensEarned * 2);
+            return;
         }
 
         // Check if the user attended a session
         uint userAttendance = sessionsContract.sessionsAttendedCount(_user);
-        if (countOfAttendanceRewards[_user] % 10 == 0) {
+        if (
+            countOfAttendanceRewards[_user] != 0 &&
+            countOfAttendanceRewards[_user] % 10 == 0
+        ) {
             //mint NFT for every 10 attendance
             _mintNFT(_user);
         }
@@ -71,20 +82,25 @@ contract RewardsContract is ERC721 {
                 countOfAttendanceRewards[_user];
             countOfAttendanceRewards[_user] += tokensEarned;
             tokenContract.transfer(_user, tokensEarned);
+            return;
         }
 
         // Check if the user mentored a session
         uint userMentoringCount = sessionsContract.sessionsMentoredCount(_user);
-        if (countOfMentoringRewards[_user] % 12 == 0) {
+        if (
+            countOfMentoringRewards[_user] != 0 &&
+            countOfMentoringRewards[_user] % 12 == 0
+        ) {
             //mint NFT for every 12 mentoring
             _mintNFT(_user);
         }
         if (userMentoringCount > countOfMentoringRewards[_user]) {
-            //award 1 token for every mentoring
+            //award 2 token for every mentoring
             uint tokensEarned = userMentoringCount -
                 countOfMentoringRewards[_user];
-            countOfMentoringRewards[_user] += tokensEarned;
-            tokenContract.transfer(_user, tokensEarned);
+            countOfMentoringRewards[_user] += ((tokensEarned) * 2);
+            tokenContract.transfer(_user, tokensEarned * 2);
+            return;
         }
     }
 

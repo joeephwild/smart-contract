@@ -199,7 +199,7 @@ contract("Rewards Contract", ([deployer, ...accounts]) => {
     const userPodcasts = await this.contractInstance.getUserPodcasts(deployer);
     // const deployerInitialBalance = await web3.eth.getBalance(deployer);
     //support
-    await this.contractInstance.supportPodcast(userPodcasts[0], {
+    await this.podcastContractInstance.supportPodcast(userPodcasts[0], {
       from: accounts[1],
       value: weiValue(1),
     });
@@ -207,7 +207,40 @@ contract("Rewards Contract", ([deployer, ...accounts]) => {
     console.log("accounts 1 _______________", accounts[1]);
     //now we check to ensure all state variables were updated correctly
     await this.rewardsContractInstance.checkAndReward(accounts[1]);
-    const userNewBalance = await this.tokenContractInstance.balanceOf(deployer);
-    expect(Number(userNewBalance)).to.equal(1);
+    const userNewBalance = await this.tokenContractInstance.balanceOf(
+      accounts[1]
+    );
+    expect(Number(userNewBalance)).to.equal(2);
+  });
+  it("should reward for user who attended session and mentored session", async () => {
+    const timestamp = currentEpochTime().toString();
+    //schedule a session
+    await this.sessionContractInstance.scheduleASession(
+      accounts[2],
+      weiValue(timestamp),
+      "meetingLink"
+    );
+
+    //first fetch the session details
+    const userSessions = await this.sessionContractInstance.getUserSessions(
+      deployer
+    );
+
+    //mentor accepts session
+    await this.sessionContractInstance.acceptSession(userSessions[0], {
+      from: accounts[2],
+    });
+    //reward session scheduler
+    await this.rewardsContractInstance.checkAndReward(deployer);
+    //reward session mentor
+    await this.rewardsContractInstance.checkAndReward(accounts[2]);
+    const attenderBalance = await this.tokenContractInstance.balanceOf(
+      deployer
+    );
+    const mentorBalance = await this.tokenContractInstance.balanceOf(
+      accounts[2]
+    );
+    expect(Number(attenderBalance)).to.equal(1);
+    expect(Number(mentorBalance)).to.equal(2);
   });
 });
