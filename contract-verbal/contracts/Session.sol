@@ -34,6 +34,9 @@ contract Sessions {
     mapping(address => uint[]) public addressToSessions;
     mapping(uint256 => Session) public uintToSession;
 
+    mapping(address => uint) public sessionsAttendedCount;
+    mapping(address => uint) public sessionsMentoredCount;
+
     modifier isTimeFrameAlreadyTaken(uint256 _timeStamp) {
         require(!isTimeFrameTaken(_timeStamp), "Timeframe is already taken");
         _;
@@ -98,6 +101,9 @@ contract Sessions {
             "You are not the mentor of this session"
         );
         session.isAccepted = true;
+        sessionsMentoredCount[session.mentor] += 1;
+        sessionsAttendedCount[session.student] += 1;
+
         // addressToSessions[session.student].isAccepted = true;
         emit SessionAccepted(_sessionId);
     }

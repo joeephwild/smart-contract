@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+
 pragma solidity ^0.8.17;
 
 interface ISessions {
@@ -9,6 +10,7 @@ interface ISessions {
         uint256 timeStamp;
         string meetingLink;
         uint256 paymentFee;
+        uint256 sessionId;
     }
 
     event SessionScheduled(
@@ -34,35 +36,19 @@ interface ISessions {
 
     function acceptSession(uint256 _sessionId) external;
 
-    function allSessions(
-        uint256 _index
-    )
-        external
-        view
-        returns (
-            address mentor,
-            address student,
-            bool isAccepted,
-            uint256 timeStamp,
-            string memory meetingLink,
-            uint256 paymentFee
-        );
+    function getUserSessions(
+        address _userAddress
+    ) external view returns (uint[] memory);
 
-    function addressToSessions(
-        address _address
-    ) external view returns (Session[] memory);
-
-    function uintToSession(
+    function getSessionDetails(
         uint256 _sessionId
-    )
-        external
-        view
-        returns (
-            address mentor,
-            address student,
-            bool isAccepted,
-            uint256 timeStamp,
-            string memory meetingLink,
-            uint256 paymentFee
-        );
+    ) external view returns (Session memory);
+
+    function sessionsAttendedCount(
+        address _userAddress
+    ) external view returns (uint);
+
+    function sessionsMentoredCount(
+        address _userAddress
+    ) external view returns (uint);
 }

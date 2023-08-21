@@ -19,7 +19,7 @@ contract PodcastContract {
 
     Podcast[] allPodcasts;
     mapping(address => uint[]) userToPodcasts;
-
+    mapping(address => uint) public supportCount;
     mapping(uint256 => Podcast) uintToPodcast;
 
     event PodcastUploaded(
@@ -77,7 +77,7 @@ contract PodcastContract {
 
         podcast.totalSupport += msg.value;
         payable(podcast.owner).transfer(msg.value);
-
+        supportCount[msg.sender] += 1;
         podcast.supporters.push(msg.sender);
     }
 
